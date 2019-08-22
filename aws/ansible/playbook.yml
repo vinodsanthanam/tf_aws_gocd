@@ -1,0 +1,17 @@
+- hosts: all
+  become: yes
+  tasks:
+    - name: Install go-server
+      yum:
+        name: go-server
+        state: latest
+    - name: Install go-agent
+      yum:
+        name: go-agent
+        state: latest
+    - name: Restart go-server
+      service: name=go-server state=restarted
+      become: yes
+    - name: Restart go-agent
+      service: name=go-agent state=restarted
+      become: yes

@@ -1,0 +1,30 @@
+format_version: 3
+pipelines:
+  deploy_static_site:
+    group: static_site_group
+    label_template: ${COUNT}
+    lock_behavior: unlockWhenFinished
+    display_order: -1
+    materials:
+      git:
+        git: https://github.com/vinodsanthanam/tf_aws_dns_web/
+        shallow_clone: false
+        auto_update: true
+        branch: master
+    stages:
+    - defaultStage:
+        fetch_materials: true
+        keep_artifacts: false
+        clean_workspace: false
+        approval:
+          type: success
+        jobs:
+          build:
+            timeout: 0
+            tasks:
+            - exec:
+                arguments:
+                - playbook.yml
+                command: ansible-playbook
+                working_directory: aws/ansible
+                run_if: passed
