@@ -1,6 +1,9 @@
 - hosts: all
   become: yes
   tasks:
+    - name: Enable amazon epel for installing ansible
+      shell: "amazon-linux-extras install epel"  
+      become: yes
     - name: Install go-server
       yum:
         name: go-server
@@ -9,9 +12,31 @@
       yum:
         name: go-agent
         state: latest
+    - name: Install git
+      yum:
+        name: git
+        state: present
+        update_cache: yes
+    - name: Install ansible
+      yum:
+        name: ansible
+        state: present
+    - name: Create directory for storing certs
+      file:
+        path: /var/go/certs
+        state: directory        
+    - name: Copy keys to ec2 instance for ansible to use in gocd pipelines
+      copy: 
+        src: ~/ssh_key
+        dest: /var/go/ssh_key
+        become: yes
+    - name: Copy certs for setting up the website
+      copy:
+        src: /etc/certs/
+        dest: /var/go/certs/
     - name: Restart go-server
       service: name=go-server state=restarted
       become: yes
     - name: Restart go-agent
       service: name=go-agent state=restarted
-      become: yes
+      become: yes      
