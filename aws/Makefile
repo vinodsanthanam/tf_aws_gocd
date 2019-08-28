@@ -19,10 +19,15 @@ infra_plan: okta_auth
 infra_apply: okta_auth
 	terraform apply
 
-ssh_into_the_instance:
-	ssh-agent
+setup_ssh:
+	eval `ssh-agent`
 	ssh-add ansible/keys/ssh_key
-	ssh -i ansible/keys/ssh_key ec2-user@3.130.25.224
+
+ssh_into_the_instance:
+	ssh -i ansible/keys/ssh_key ec2-user@3.130.1.216
+
+kill_all_ssh_agents:
+	ps aux | grep 'ssh-agent' | awk '{print $2}' | xargs kill -9
 
 taint_instance:
 	terraform taint -module="instanceModule" aws_instance.instance

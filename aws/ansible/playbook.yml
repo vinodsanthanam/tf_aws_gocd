@@ -1,9 +1,17 @@
 - hosts: all
   become: yes
   tasks:
-    - name: Enable amazon epel for installing ansible
-      shell: "amazon-linux-extras install epel"  
+    - name: Disable priorities in yum conf to install epel
       become: yes
+      copy:
+        src: priorities.conf
+        dest: /etc/yum/pluginconf.d/priorities.conf
+    - name: Enable amazon epel for installing ansible
+      shell: "y | amazon-linux-extras install epel"  
+      become: yes
+    - name: Add gocd yum repo url
+      become: yes
+      shell: "curl https://download.gocd.org/gocd.repo -o /etc/yum.repos.d/gocd.repo"
     - name: Install go-server
       yum:
         name: go-server
@@ -29,14 +37,13 @@
       copy: 
         src: ~/ssh_key
         dest: /var/go/ssh_key
-        become: yes
     - name: Copy certs for setting up the website
       copy:
         src: /etc/certs/
         dest: /var/go/certs/
     - name: Restart go-server
-      service: name=go-server state=restarted
+      shell: "service go-server start"
       become: yes
     - name: Restart go-agent
-      service: name=go-agent state=restarted
+      shell: "service go-agent start"
       become: yes      
